@@ -96,6 +96,18 @@
             opacity: 0.7;
             transition: all 0.3s ease;
             filter: drop-shadow(0 0 10px #00ff88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fingerprint-svg {
+            width: 80px;
+            height: 100px;
+            fill: #00ff88;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px #00ff88);
         }
 
         .scanner-area.scanning .thumb-placement {
@@ -107,7 +119,12 @@
         .scanner-area.scanning .thumb-icon {
             opacity: 1;
             animation: pulse 1.5s ease-in-out infinite;
-            color: #00ffff;
+        }
+
+        .scanner-area.scanning .fingerprint-svg {
+            opacity: 1;
+            fill: #00ffff;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
         .placement-text {
@@ -396,7 +413,34 @@
             <div class="scanner-area" id="scannerArea">
                 <div class="scan-line"></div>
                 <div class="thumb-placement">
-                    <div class="thumb-icon">👍</div>
+                    <div class="thumb-icon">
+                        <svg class="fingerprint-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Fingerprint pattern -->
+                            <ellipse cx="50" cy="60" rx="45" ry="55" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="40" ry="48" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="35" ry="42" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="30" ry="36" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="25" ry="30" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="20" ry="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="15" ry="18" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="10" ry="12" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <ellipse cx="50" cy="60" rx="5" ry="6" fill="none" stroke="currentColor" stroke-width="2"/>
+                            
+                            <!-- Fingerprint ridges -->
+                            <path d="M25 30 Q50 25 75 30" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M20 40 Q50 35 80 40" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M18 50 Q50 45 82 50" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M20 70 Q50 75 80 70" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M25 85 Q50 90 75 85" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M30 95 Q50 100 70 95" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                            
+                            <!-- Additional detail lines -->
+                            <path d="M15 60 Q30 55 45 60" fill="none" stroke="currentColor" stroke-width="1"/>
+                            <path d="M55 60 Q70 55 85 60" fill="none" stroke="currentColor" stroke-width="1"/>
+                            <path d="M35 25 Q50 20 65 25" fill="none" stroke="currentColor" stroke-width="1"/>
+                            <path d="M35 105 Q50 110 65 105" fill="none" stroke="currentColor" stroke-width="1"/>
+                        </svg>
+                    </div>
                 </div>
                 <div class="placement-text">Thumb here</div>
                 <div class="progress-container">
@@ -454,9 +498,166 @@
         const audioControls = document.getElementById('audioControls');
         const scanSound = document.getElementById('scanSound');
         const successSound = document.getElementById('successSound');
+        const ambientMusic = document.getElementById('ambientMusic');
+        const bootupSound = document.getElementById('bootupSound');
 
         let isScanning = false;
         let scanProgress = 0;
+        let audioContext = null;
+        let ambientGain = null;
+        let ambientOscillator = null;
+
+        // Create atmospheric sci-fi ambient music
+        function createAmbientMusic() {
+            if (!audioContext) return;
+            
+            // Create a low-frequency drone
+            const drone = audioContext.createOscillator();
+            const droneGain = audioContext.createGain();
+            
+            drone.type = 'sine';
+            drone.frequency.setValueAtTime(60, audioContext.currentTime); // Deep bass frequency
+            droneGain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            
+            drone.connect(droneGain);
+            droneGain.connect(audioContext.destination);
+            
+            // Add frequency modulation for sci-fi effect
+            const lfo = audioContext.createOscillator();
+            const lfoGain = audioContext.createGain();
+            
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(0.1, audioContext.currentTime); // Very slow modulation
+            lfoGain.gain.setValueAtTime(5, audioContext.currentTime);
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(drone.frequency);
+            
+            // Create atmospheric pad
+            const pad = audioContext.createOscillator();
+            const padGain = audioContext.createGain();
+            const padFilter = audioContext.createBiquadFilter();
+            
+            pad.type = 'sawtooth';
+            pad.frequency.setValueAtTime(220, audioContext.currentTime);
+            padGain.gain.setValueAtTime(0.05, audioContext.currentTime);
+            padFilter.type = 'lowpass';
+            padFilter.frequency.setValueAtTime(800, audioContext.currentTime);
+            padFilter.Q.setValueAtTime(5, audioContext.currentTime);
+            
+            pad.connect(padFilter);
+            padFilter.connect(padGain);
+            padGain.connect(audioContext.destination);
+            
+            // Start all oscillators
+            drone.start();
+            lfo.start();
+            pad.start();
+            
+            // Store references for cleanup
+            ambientOscillator = [drone, lfo, pad];
+            ambientGain = [droneGain, padGain];
+        }
+
+        // Create system bootup sound
+        function playBootupSound() {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            oscillator.type = 'sine';
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+            
+            // Create ascending tone sequence
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5);
+            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 1);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 1.5);
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 2);
+        }
+
+        // Enhanced scan sound with sci-fi effects
+        function playEnhancedScanSound() {
+            if (!audioContext) return;
+            
+            // Original scan sound
+            scanSound.currentTime = 0;
+            scanSound.play().catch(e => console.log('Audio play failed:', e));
+            
+            // Add additional sci-fi scanning effects
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            oscillator.type = 'sawtooth';
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1000, audioContext.currentTime);
+            filter.Q.setValueAtTime(10, audioContext.currentTime);
+            
+            // Sweeping frequency effect
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 3);
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 2.5);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3);
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 3);
+        }
+
+        // Success sound with triumphant tones
+        function playEnhancedSuccessSound() {
+            if (!audioContext) return;
+            
+            // Original success sound
+            successSound.currentTime = 0;
+            successSound.play().catch(e => console.log('Audio play failed:', e));
+            
+            // Add triumphant chord progression
+            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5 major chord
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.1);
+                gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + index * 0.1 + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 1.5);
+                
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start(audioContext.currentTime + index * 0.1);
+                oscillator.stop(audioContext.currentTime + index * 0.1 + 1.5);
+            });
+        }
 
         // Create floating particles
         function createParticles() {
@@ -479,9 +680,8 @@
             scannerArea.classList.add('scanning');
             statusText.textContent = 'Thumb detected - Starting scan...';
             
-            // Play scan sound
-            scanSound.currentTime = 0;
-            scanSound.play().catch(e => console.log('Audio play failed:', e));
+            // Play enhanced scan sound
+            playEnhancedScanSound();
             
             // Short delay before showing loading screen
             setTimeout(() => {
@@ -528,18 +728,16 @@
         }
 
         function completeScan() {
-            // Play success sound
-            successSound.currentTime = 0;
-            successSound.play().catch(e => console.log('Audio play failed:', e));
+            // Play enhanced success sound
+            playEnhancedSuccessSound();
             
             // Flash green effect on loading screen
             loadingScreen.style.background = 'linear-gradient(135deg, rgba(0, 40, 0, 0.95), rgba(0, 60, 20, 0.95))';
             
-            // Hide loading screen and play video after brief delay
+            // Keep ACCESS GRANTED displayed and reset after 5 seconds
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                playDemoVideo();
-            }, 1500);
+                resetScanner();
+            }, 5000);
         }
 
         function resetScanner() {
@@ -559,7 +757,6 @@
             statusText.style.display = 'block';
             statusText.textContent = 'System Ready';
             document.body.style.background = 'linear-gradient(135deg, #0a0a23, #1a1a3a)';
-            closeVideo();
         }
 
         function playDemoVideo() {
@@ -607,27 +804,37 @@
                 startScan();
             } else if (e.code === 'Escape') {
                 resetScanner();
-            } else if (e.code === 'Enter') {
-                playDemoVideo();
             }
         });
 
-        // Auto-reset scanner when video ends
-        demoVideo.addEventListener('ended', function() {
-            setTimeout(resetScanner, 1000);
-        });
+        // Auto-reset scanner after ACCESS GRANTED is shown
+        // (No video functionality needed)
 
-        // Add some ambient sound context
-        function initAudioContext() {
-            // This helps with audio autoplay policies
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
+        // Initialize audio system and start ambient music
+        function initAudioSystem() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                // Play system bootup sound
+                setTimeout(() => {
+                    playBootupSound();
+                }, 500);
+                
+                // Start ambient music after bootup
+                setTimeout(() => {
+                    createAmbientMusic();
+                }, 2000);
+                
+            } catch (e) {
+                console.log('Web Audio API not supported:', e);
             }
         }
 
         // Initialize on first user interaction
-        document.addEventListener('click', initAudioContext, { once: true });
+        document.addEventListener('click', initAudioSystem, { once: true });
 
         // Initialize particles
         createParticles();
