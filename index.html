@@ -505,158 +505,165 @@
         let scanProgress = 0;
         let audioContext = null;
         let ambientGain = null;
-        let ambientOscillator = null;
+        let ambientOscillators = [];
+        let activeScanOscillators = [];
 
-        // Create atmospheric sci-fi ambient music
+        // Create modern subtle ambient atmosphere
         function createAmbientMusic() {
             if (!audioContext) return;
             
-            // Create a low-frequency drone
-            const drone = audioContext.createOscillator();
-            const droneGain = audioContext.createGain();
+            // Subtle low-frequency hum
+            const hum = audioContext.createOscillator();
+            const humGain = audioContext.createGain();
             
-            drone.type = 'sine';
-            drone.frequency.setValueAtTime(60, audioContext.currentTime); // Deep bass frequency
-            droneGain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            hum.type = 'sine';
+            hum.frequency.setValueAtTime(40, audioContext.currentTime); // Very low frequency
+            humGain.gain.setValueAtTime(0.03, audioContext.currentTime); // Very quiet
             
-            drone.connect(droneGain);
-            droneGain.connect(audioContext.destination);
+            hum.connect(humGain);
+            humGain.connect(audioContext.destination);
+            hum.start();
             
-            // Add frequency modulation for sci-fi effect
-            const lfo = audioContext.createOscillator();
-            const lfoGain = audioContext.createGain();
-            
-            lfo.type = 'sine';
-            lfo.frequency.setValueAtTime(0.1, audioContext.currentTime); // Very slow modulation
-            lfoGain.gain.setValueAtTime(5, audioContext.currentTime);
-            
-            lfo.connect(lfoGain);
-            lfoGain.connect(drone.frequency);
-            
-            // Create atmospheric pad
-            const pad = audioContext.createOscillator();
-            const padGain = audioContext.createGain();
-            const padFilter = audioContext.createBiquadFilter();
-            
-            pad.type = 'sawtooth';
-            pad.frequency.setValueAtTime(220, audioContext.currentTime);
-            padGain.gain.setValueAtTime(0.05, audioContext.currentTime);
-            padFilter.type = 'lowpass';
-            padFilter.frequency.setValueAtTime(800, audioContext.currentTime);
-            padFilter.Q.setValueAtTime(5, audioContext.currentTime);
-            
-            pad.connect(padFilter);
-            padFilter.connect(padGain);
-            padGain.connect(audioContext.destination);
-            
-            // Start all oscillators
-            drone.start();
-            lfo.start();
-            pad.start();
-            
-            // Store references for cleanup
-            ambientOscillator = [drone, lfo, pad];
-            ambientGain = [droneGain, padGain];
+            // Store for cleanup
+            ambientOscillators.push(hum);
+            ambientGain = humGain;
         }
 
-        // Create system bootup sound
+        // Modern system bootup sound
         function playBootupSound() {
             if (!audioContext) return;
             
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            const filter = audioContext.createBiquadFilter();
             
             oscillator.type = 'sine';
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
             
-            // Create ascending tone sequence
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5);
-            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 1);
-            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 1.5);
+            // Modern tech startup sound - quick ascending beeps
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.2);
+            oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.4);
             
             gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + 0.15);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
+            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.25);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + 0.35);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.4);
+            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.45);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
             
-            oscillator.connect(filter);
-            filter.connect(gainNode);
+            oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
             oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 2);
+            oscillator.stop(audioContext.currentTime + 0.8);
         }
 
-        // Enhanced scan sound with sci-fi effects
+        // Modern scanning sound that stops properly
         function playEnhancedScanSound() {
             if (!audioContext) return;
             
-            // Original scan sound
-            scanSound.currentTime = 0;
-            scanSound.play().catch(e => console.log('Audio play failed:', e));
+            // Clear any existing scan oscillators
+            stopAllScanOscillators();
             
-            // Add additional sci-fi scanning effects
+            // Modern digital scanning effect
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             const filter = audioContext.createBiquadFilter();
             
-            oscillator.type = 'sawtooth';
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(1000, audioContext.currentTime);
-            filter.Q.setValueAtTime(10, audioContext.currentTime);
+            oscillator.type = 'square';
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1500, audioContext.currentTime);
+            filter.Q.setValueAtTime(2, audioContext.currentTime);
             
-            // Sweeping frequency effect
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 3);
+            // Modern pulsing scan frequency
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(400, audioContext.currentTime + 1);
+            oscillator.frequency.linearRampToValueAtTime(300, audioContext.currentTime + 2);
+            oscillator.frequency.linearRampToValueAtTime(500, audioContext.currentTime + 3);
             
+            // Pulsing gain envelope
             gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.1);
-            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 2.5);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3);
+            for (let i = 0; i < 12; i++) {
+                const time = audioContext.currentTime + (i * 0.25);
+                gainNode.gain.linearRampToValueAtTime(0.15, time + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0.02, time + 0.2);
+            }
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 3.2);
             
             oscillator.connect(filter);
             filter.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
             oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 3);
+            oscillator.stop(audioContext.currentTime + 3.2);
+            
+            // Store reference for potential cleanup
+            activeScanOscillators.push(oscillator);
+            
+            // Auto-cleanup after sound ends
+            setTimeout(() => {
+                const index = activeScanOscillators.indexOf(oscillator);
+                if (index > -1) {
+                    activeScanOscillators.splice(index, 1);
+                }
+            }, 3200);
         }
 
-        // Success sound with triumphant tones
+        // Clean success sound
         function playEnhancedSuccessSound() {
             if (!audioContext) return;
             
-            // Original success sound
-            successSound.currentTime = 0;
-            successSound.play().catch(e => console.log('Audio play failed:', e));
+            // Stop all scanning sounds first
+            stopAllScanOscillators();
             
-            // Add triumphant chord progression
+            // Clean, modern success beep sequence
             const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5 major chord
             
             frequencies.forEach((freq, index) => {
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-                const filter = audioContext.createBiquadFilter();
                 
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
                 
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+                const startTime = audioContext.currentTime + index * 0.15;
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
                 
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.1);
-                gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + index * 0.1 + 0.1);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 1.5);
-                
-                oscillator.connect(filter);
-                filter.connect(gainNode);
+                oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                oscillator.start(audioContext.currentTime + index * 0.1);
-                oscillator.stop(audioContext.currentTime + index * 0.1 + 1.5);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.8);
             });
+        }
+
+        // Function to stop all scanning oscillators
+        function stopAllScanOscillators() {
+            activeScanOscillators.forEach(osc => {
+                try {
+                    osc.stop();
+                } catch (e) {
+                    // Oscillator might already be stopped
+                }
+            });
+            activeScanOscillators = [];
+        }
+
+        // Function to stop all audio
+        function stopAllAudio() {
+            stopAllScanOscillators();
+            ambientOscillators.forEach(osc => {
+                try {
+                    osc.stop();
+                } catch (e) {
+                    // Oscillator might already be stopped
+                }
+            });
+            ambientOscillators = [];
         }
 
         // Create floating particles
@@ -743,6 +750,10 @@
         function resetScanner() {
             isScanning = false;
             scanProgress = 0;
+            
+            // Stop all scan sounds
+            stopAllScanOscillators();
+            
             scannerArea.classList.remove('scanning');
             progressFill.style.width = '0%';
             progressText.textContent = '0%';
@@ -810,7 +821,7 @@
         // Auto-reset scanner after ACCESS GRANTED is shown
         // (No video functionality needed)
 
-        // Initialize audio system and start ambient music
+        // Initialize modern audio system
         function initAudioSystem() {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -818,15 +829,15 @@
                     audioContext.resume();
                 }
                 
-                // Play system bootup sound
+                // Play modern system bootup sound
                 setTimeout(() => {
                     playBootupSound();
-                }, 500);
+                }, 300);
                 
-                // Start ambient music after bootup
+                // Start subtle ambient atmosphere
                 setTimeout(() => {
                     createAmbientMusic();
-                }, 2000);
+                }, 1000);
                 
             } catch (e) {
                 console.log('Web Audio API not supported:', e);
