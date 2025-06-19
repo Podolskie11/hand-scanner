@@ -3,6 +3,7 @@
   "short_name": "ThumbScan",
   "description": "Advanced biometric fingerprint scanner for secure access control",
   "start_url": "./",
+  "id": "/hand-scanner/",
   "display": "standalone",
   "background_color": "#0a0a23",
   "theme_color": "#00ff88",
@@ -13,16 +14,31 @@
       "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["security", "utilities"],
   "lang": "en",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }
