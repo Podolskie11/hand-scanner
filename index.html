@@ -3,384 +3,652 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Hand Scan Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Biometric Access Control</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
-        
-        :root {
-            --primary: #00f7ff;
-            --secondary: #ff00e4;
-            --bg-dark: #0a0a1a;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: var(--bg-dark);
-            color: white;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a23, #1a1a3a);
+            color: #00ff88;
             overflow: hidden;
             height: 100vh;
-            margin: 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
-        
-        .scan-container {
-            width: 90%;
-            max-width: 1000px;
-            background: rgba(10, 10, 30, 0.7);
-            border: 2px solid var(--primary);
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 247, 255, 0.3);
-            padding: 2rem;
+
+        .scanner-container {
             position: relative;
-            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        .scan-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                transparent 45%,
-                var(--primary) 50%,
-                transparent 55%
-            );
-            opacity: 0.1;
-            animation: scanGlow 8s linear infinite;
-            pointer-events: none;
-        }
-        
-        @keyframes scanGlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .header {
+
+        .main-interface {
             text-align: center;
-            margin-bottom: 2rem;
-            position: relative;
+            z-index: 10;
         }
-        
+
         .title {
             font-size: 2.5rem;
-            margin: 0;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
-        }
-        
-        .subtitle {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 0.5rem;
-        }
-        
-        .scan-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
             margin-bottom: 2rem;
+            text-shadow: 0 0 20px #00ff88;
+            animation: glow 2s ease-in-out infinite alternate;
         }
-        
-        .scan-cell {
-            aspect-ratio: 1;
-            background: rgba(20, 20, 40, 0.5);
-            border: 1px solid rgba(0, 247, 255, 0.3);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+
+        .scanner-area {
             position: relative;
-            overflow: hidden;
-        }
-        
-        .scan-cell.active {
-            background: rgba(0, 247, 255, 0.1);
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 247, 255, 0.3);
-        }
-        
-        .scan-cell.scanning::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 45%,
-                var(--primary) 50%,
-                transparent 55%
-            );
-            animation: scanning 2s linear infinite;
-            opacity: 0.7;
-        }
-        
-        @keyframes scanning {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        
-        .scan-cell.complete {
-            background: rgba(0, 247, 255, 0.2);
-            border-color: var(--primary);
-        }
-        
-        .scan-cell.complete::after {
-            content: '✓';
-            color: var(--primary);
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .hand-area {
-            width: 100%;
-            height: 200px;
-            background: rgba(20, 20, 40, 0.5);
-            border: 2px dashed rgba(0, 247, 255, 0.5);
-            border-radius: 10px;
+            width: 350px;
+            height: 450px;
+            border: 3px solid #00ff88;
+            border-radius: 25px;
+            margin: 0 auto 2rem auto;
+            background: linear-gradient(145deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 60, 0.7));
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
             overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 255, 136, 0.1);
         }
-        
-        .hand-area:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+
+        .scanner-area:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4), inset 0 0 50px rgba(0, 255, 136, 0.2);
+            transform: scale(1.02);
         }
-        
-        .hand-area.active {
-            border-color: var(--primary);
-            background: rgba(0, 247, 255, 0.05);
-        }
-        
-        .hand-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: rgba(0, 247, 255, 0.5);
+
+        .hand-placement {
+            position: relative;
+            width: 200px;
+            height: 250px;
+            border: 2px dashed #00ff88;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 255, 136, 0.05);
             transition: all 0.3s ease;
         }
-        
-        .hand-area:hover .hand-icon {
-            color: var(--primary);
-            transform: scale(1.1);
+
+        .hand-icon {
+            font-size: 6rem;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px #00ff88);
         }
-        
-        .hand-text {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
+
+        .scanner-area.scanning .hand-placement {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            animation: scannerGlow 2s ease-in-out infinite;
+        }
+
+        .scanner-area.scanning .hand-icon {
+            opacity: 1;
+            animation: pulse 1.5s ease-in-out infinite;
+            color: #00ffff;
+        }
+
+        .placement-text {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: #00ff88;
             text-align: center;
+            opacity: 0.8;
         }
-        
+
+        .scanner-area.scanning .placement-text {
+            opacity: 0;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #00ffff, #ffffff, #00ffff, transparent);
+            display: none;
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        .scanner-area.scanning .scan-line {
+            display: block;
+            animation: scanning 3s linear infinite;
+        }
+
         .progress-container {
             width: 100%;
-            height: 10px;
-            background: rgba(20, 20, 40, 0.5);
-            border-radius: 5px;
-            margin-top: 2rem;
-            overflow: hidden;
+            padding: 0 20px;
+            margin-top: 20px;
+            display: none;
         }
-        
+
         .progress-bar {
-            height: 100%;
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 255, 136, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #00ff88;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-fill {
             width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            transition: width 0.5s ease;
-            border-radius: 5px;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ffff, #ffffff);
+            border-radius: 6px;
+            transition: width 0.1s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
         }
-        
-        .status-message {
+
+        .progress-text {
             text-align: center;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            min-height: 20px;
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #00ffff;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff;
         }
-        
-        .pulse {
-            animation: pulse 1.5s infinite;
+
+        .scanner-area.scanning .progress-container {
+            display: block;
         }
-        
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
+
+        .status-text {
+            font-size: 1.4rem;
+            margin: 1rem 0;
+            min-height: 2rem;
+            text-shadow: 0 0 10px #00ff88;
         }
-        
-        .grid-overlay {
-            position: absolute;
+
+        .instruction {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 8px #00ff88;
+        }
+
+        .loading-screen {
+            display: none;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
-                linear-gradient(rgba(0, 247, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 247, 255, 0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 35, 0.95), rgba(0, 20, 40, 0.95));
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 3rem;
+            border: 2px solid #00ff88;
+            border-radius: 20px;
+            background: rgba(0, 20, 40, 0.8);
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.3);
+        }
+
+        .loading-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+        }
+
+        .loading-progress {
+            width: 400px;
+            height: 20px;
+            background: rgba(0, 255, 136, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 2rem 0;
+            border: 2px solid #00ff88;
+        }
+
+        .loading-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ffff, #ffffff);
+            border-radius: 10px;
+            transition: width 0.15s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+
+        .loading-percentage {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 25px #00ffff;
+            margin: 1rem 0;
+        }
+
+        .loading-status {
+            font-size: 1.2rem;
+            color: #00ff88;
+            min-height: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .video-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .close-video {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 136, 0.8);
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .corner-decoration {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #00ff88;
+        }
+
+        .corner-decoration.top-left {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #00ff88; }
+            to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes scannerGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+                border-color: #00ff88;
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+                border-color: #00ffff;
+            }
+        }
+
+        @keyframes scanning {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(460px); }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             pointer-events: none;
-            opacity: 0.3;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: float 6s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10px) translateX(100px);
+            }
+        }
+
+        .audio-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+        }
+
+        .audio-controls button {
+            background: rgba(0, 255, 136, 0.8);
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
         }
     </style>
 </head>
 <body>
-    <div class="scan-container">
-        <div class="grid-overlay"></div>
-        <div class="header">
-            <h1 class="title">BIOMETRIC SCAN PORTAL</h1>
-            <p class="subtitle">SYSTEM READY - AWAITING HAND PLACEMENT</p>
-        </div>
+    <div class="scanner-container">
+        <div class="particles" id="particles"></div>
         
-        <div class="scan-grid" id="scanGrid">
-            <!-- Cells will be generated by JavaScript -->
+        <div class="corner-decoration top-left"></div>
+        <div class="corner-decoration top-right"></div>
+        <div class="corner-decoration bottom-left"></div>
+        <div class="corner-decoration bottom-right"></div>
+
+        <div class="main-interface">
+            <h1 class="title">BIOMETRIC ACCESS CONTROL</h1>
+            <p class="instruction">Place your hand on the scanner</p>
+            
+            <div class="scanner-area" id="scannerArea">
+                <div class="scan-line"></div>
+                <div class="hand-placement">
+                    <div class="hand-icon">🖐️</div>
+                </div>
+                <div class="placement-text">Place your hand here</div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+            
+            <p class="status-text" id="statusText">System Ready</p>
         </div>
-        
-        <div class="hand-area" id="handArea">
-            <div class="hand-icon">✋</div>
-            <div class="hand-text">PLACE YOUR HAND HERE TO INITIATE SCAN</div>
+
+        <div class="loading-screen" id="loadingScreen">
+            <div class="loading-content">
+                <div class="loading-title">BIOMETRIC VERIFICATION</div>
+                <div class="loading-progress">
+                    <div class="loading-fill" id="loadingFill"></div>
+                </div>
+                <div class="loading-percentage" id="loadingPercentage">0%</div>
+                <div class="loading-status" id="loadingStatus">Initializing scan...</div>
+            </div>
         </div>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
+
+        <div class="audio-controls" id="audioControls">
+            <button onclick="playDemoVideo()">▶ Play Demo Video</button>
+            <button onclick="playCustomSound()">🔊 Play Alert Sound</button>
         </div>
-        
-        <div class="status-message" id="statusMessage"></div>
     </div>
 
+    <div class="video-container" id="videoContainer">
+        <button class="close-video" onclick="closeVideo()">✕ Close</button>
+        <video id="demoVideo" controls>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <audio id="scanSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmAVBU2b1Ow=" type="audio/wav">
+    </audio>
+
+    <audio id="successSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRmICAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU4CAABBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmAVBXFH8N2QQAoUXrTp66hVFApGn+DyvmAVBXFI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBXJI8N2QQAoUXrTp66hVFApGn+DyvmAVBQ==" type="audio/wav">
+    </audio>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const scanGrid = document.getElementById('scanGrid');
-            const handArea = document.getElementById('handArea');
-            const progressBar = document.getElementById('progressBar');
-            const statusMessage = document.getElementById('statusMessage');
-            
-            // Create scan grid cells
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'scan-cell';
-                cell.dataset.index = i;
-                scanGrid.appendChild(cell);
+        const scannerArea = document.getElementById('scannerArea');
+        const statusText = document.getElementById('statusText');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const loadingFill = document.getElementById('loadingFill');
+        const loadingPercentage = document.getElementById('loadingPercentage');
+        const loadingStatus = document.getElementById('loadingStatus');
+        const videoContainer = document.getElementById('videoContainer');
+        const demoVideo = document.getElementById('demoVideo');
+        const audioControls = document.getElementById('audioControls');
+        const scanSound = document.getElementById('scanSound');
+        const successSound = document.getElementById('successSound');
+
+        let isScanning = false;
+        let scanProgress = 0;
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+                particlesContainer.appendChild(particle);
             }
+        }
+
+        function startScan() {
+            if (isScanning) return;
             
-            let isScanning = false;
-            let scanProgress = 0;
-            let scanInterval;
+            isScanning = true;
+            scanProgress = 0;
+            scannerArea.classList.add('scanning');
+            statusText.textContent = 'Hand detected - Starting scan...';
             
-            handArea.addEventListener('click', function() {
-                if (isScanning) return;
-                
-                startScan();
-            });
+            // Play scan sound
+            scanSound.currentTime = 0;
+            scanSound.play().catch(e => console.log('Audio play failed:', e));
             
-            function startScan() {
-                isScanning = true;
-                scanProgress = 0;
-                handArea.classList.add('active');
-                statusMessage.textContent = "INITIATING BIOMETRIC SCAN...";
-                progressBar.style.width = '0%';
+            // Short delay before showing loading screen
+            setTimeout(() => {
+                loadingScreen.style.display = 'flex';
+                startLoadingSequence();
+            }, 1000);
+        }
+
+        function startLoadingSequence() {
+            scanProgress = 0;
+            const loadingInterval = setInterval(() => {
+                scanProgress += 1;
                 
-                // Start scanning animation
-                const cells = document.querySelectorAll('.scan-cell');
-                cells.forEach(cell => cell.classList.remove('complete', 'scanning'));
+                // Update both progress bars
+                progressFill.style.width = scanProgress + '%';
+                progressText.textContent = scanProgress + '%';
+                loadingFill.style.width = scanProgress + '%';
+                loadingPercentage.textContent = scanProgress + '%';
                 
-                // Begin scan sequence
-                scanInterval = setInterval(() => {
-                    scanProgress += 2;
-                    progressBar.style.width = `${scanProgress}%`;
-                    
-                    if (scanProgress >= 100) {
-                        completeScan();
-                        return;
-                    }
-                    
-                    // Update status message
-                    if (scanProgress < 30) {
-                        statusMessage.textContent = "SCANNING EPIDERMAL LAYER...";
-                    } else if (scanProgress < 60) {
-                        statusMessage.textContent = "ANALYZING VEIN PATTERN...";
-                    } else {
-                        statusMessage.textContent = "VERIFYING BIOMETRIC SIGNATURE...";
-                    }
-                    
-                    // Randomly activate cells
-                    const randomCellIndex = Math.floor(Math.random() * cells.length);
-                    if (!cells[randomCellIndex].classList.contains('scanning') && 
-                        !cells[randomCellIndex].classList.contains('complete')) {
-                        cells[randomCellIndex].classList.add('scanning');
-                        
-                        // After a delay, mark as complete
-                        setTimeout(() => {
-                            cells[randomCellIndex].classList.remove('scanning');
-                            cells[randomCellIndex].classList.add('complete');
-                        }, 1500);
-                    }
-                    
-                }, 100);
-            }
-            
-            function completeScan() {
-                clearInterval(scanInterval);
-                isScanning = false;
-                
-                // Mark all cells as complete
-                const cells = document.querySelectorAll('.scan-cell');
-                cells.forEach(cell => {
-                    cell.classList.remove('scanning');
-                    cell.classList.add('complete');
-                });
-                
-                statusMessage.textContent = "SCAN COMPLETE - IDENTITY CONFIRMED";
-                handArea.classList.remove('active');
-                
-                // Show success message
-                setTimeout(() => {
-                    statusMessage.innerHTML = '<span style="color: #00f7ff;">ACCESS GRANTED - WELCOME AUTHORIZED USER</span>';
-                    
-                    // Reset after 5 seconds
-                    setTimeout(() => {
-                        resetScan();
-                    }, 5000);
-                }, 1000);
-            }
-            
-            function resetScan() {
-                progressBar.style.width = '0%';
-                statusMessage.textContent = "SYSTEM READY - AWAITING HAND PLACEMENT";
-                
-                const cells = document.querySelectorAll('.scan-cell');
-                cells.forEach(cell => {
-                    cell.classList.remove('complete', 'scanning');
-                });
-            }
-            
-            // Add some random flickering to cells for effect
-            setInterval(() => {
-                if (!isScanning) {
-                    const cells = document.querySelectorAll('.scan-cell');
-                    const randomCell = cells[Math.floor(Math.random() * cells.length)];
-                    randomCell.style.opacity = Math.random() * 0.5 + 0.5;
-                    
-                    setTimeout(() => {
-                        randomCell.style.opacity = 1;
-                    }, 200);
+                // Update loading status messages
+                if (scanProgress <= 20) {
+                    loadingStatus.textContent = 'Initializing biometric sensors...';
+                } else if (scanProgress <= 40) {
+                    loadingStatus.textContent = 'Scanning palm print patterns...';
+                } else if (scanProgress <= 60) {
+                    loadingStatus.textContent = 'Analyzing fingerprint ridges...';
+                } else if (scanProgress <= 80) {
+                    loadingStatus.textContent = 'Cross-referencing database...';
+                } else if (scanProgress <= 95) {
+                    loadingStatus.textContent = 'Verifying identity match...';
+                } else if (scanProgress < 100) {
+                    loadingStatus.textContent = 'Finalizing authentication...';
                 }
-            }, 300);
+                
+                if (scanProgress >= 100) {
+                    clearInterval(loadingInterval);
+                    loadingStatus.textContent = 'ACCESS GRANTED';
+                    loadingStatus.style.color = '#00ff88';
+                    loadingStatus.style.fontSize = '1.8rem';
+                    loadingStatus.style.fontWeight = 'bold';
+                    setTimeout(completeScan, 1500);
+                }
+            }, 80); // Slower progression for more realistic feel
+        }
+
+        function completeScan() {
+            // Play success sound
+            successSound.currentTime = 0;
+            successSound.play().catch(e => console.log('Audio play failed:', e));
+            
+            // Flash green effect on loading screen
+            loadingScreen.style.background = 'linear-gradient(135deg, rgba(0, 40, 0, 0.95), rgba(0, 60, 20, 0.95))';
+            
+            // Hide loading screen and play video after brief delay
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                playDemoVideo();
+            }, 1500);
+        }
+
+        function resetScanner() {
+            isScanning = false;
+            scanProgress = 0;
+            scannerArea.classList.remove('scanning');
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            loadingFill.style.width = '0%';
+            loadingPercentage.textContent = '0%';
+            loadingStatus.textContent = 'Initializing scan...';
+            loadingStatus.style.color = '#00ff88';
+            loadingStatus.style.fontSize = '1.2rem';
+            loadingStatus.style.fontWeight = 'normal';
+            loadingScreen.style.display = 'none';
+            loadingScreen.style.background = 'linear-gradient(135deg, rgba(0, 0, 35, 0.95), rgba(0, 20, 40, 0.95))';
+            statusText.style.display = 'block';
+            statusText.textContent = 'System Ready';
+            document.body.style.background = 'linear-gradient(135deg, #0a0a23, #1a1a3a)';
+            closeVideo();
+        }
+
+        function playDemoVideo() {
+            videoContainer.style.display = 'flex';
+            demoVideo.play().catch(e => console.log('Video play failed:', e));
+        }
+
+        function closeVideo() {
+            videoContainer.style.display = 'none';
+            demoVideo.pause();
+            demoVideo.currentTime = 0;
+        }
+
+        function playCustomSound() {
+            // Create a simple beep sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Event listeners
+        scannerArea.addEventListener('click', startScan);
+        
+        // Show audio controls after first interaction
+        document.addEventListener('click', function() {
+            audioControls.style.display = 'block';
+        }, { once: true });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                startScan();
+            } else if (e.code === 'Escape') {
+                resetScanner();
+            } else if (e.code === 'Enter') {
+                playDemoVideo();
+            }
         });
+
+        // Auto-reset scanner when video ends
+        demoVideo.addEventListener('ended', function() {
+            setTimeout(resetScanner, 1000);
+        });
+
+        // Initialize particles
+        createParticles();
+
+        // Add some ambient sound context
+        function initAudioContext() {
+            // This helps with audio autoplay policies
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Initialize on first user interaction
+        document.addEventListener('click', initAudioContext, { once: true });
     </script>
 </body>
 </html>
