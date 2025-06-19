@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Access Control</title>
+    <title>Fingerprint Scanner</title>
     <style>
         * {
             margin: 0;
@@ -47,12 +47,19 @@
             animation: glow 2s ease-in-out infinite alternate;
         }
 
+        .instruction {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 8px #00ff88;
+        }
+
         .scanner-area {
             position: relative;
-            width: 350px;
-            height: 450px;
+            width: 280px;
+            height: 280px;
             border: 3px solid #00ff88;
-            border-radius: 25px;
+            border-radius: 50%;
             margin: 0 auto 2rem auto;
             background: linear-gradient(145deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 60, 0.7));
             display: flex;
@@ -68,15 +75,15 @@
         .scanner-area:hover {
             border-color: #00ffff;
             box-shadow: 0 0 40px rgba(0, 255, 255, 0.4), inset 0 0 50px rgba(0, 255, 136, 0.2);
-            transform: scale(1.02);
+            transform: scale(1.05);
         }
 
-        .hand-placement {
+        .thumb-placement {
             position: relative;
-            width: 200px;
-            height: 250px;
+            width: 120px;
+            height: 150px;
             border: 2px dashed #00ff88;
-            border-radius: 15px;
+            border-radius: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -84,20 +91,20 @@
             transition: all 0.3s ease;
         }
 
-        .hand-icon {
-            font-size: 6rem;
+        .thumb-icon {
+            font-size: 4rem;
             opacity: 0.7;
             transition: all 0.3s ease;
             filter: drop-shadow(0 0 10px #00ff88);
         }
 
-        .scanner-area.scanning .hand-placement {
+        .scanner-area.scanning .thumb-placement {
             border-color: #00ffff;
             background: rgba(0, 255, 255, 0.1);
             animation: scannerGlow 2s ease-in-out infinite;
         }
 
-        .scanner-area.scanning .hand-icon {
+        .scanner-area.scanning .thumb-icon {
             opacity: 1;
             animation: pulse 1.5s ease-in-out infinite;
             color: #00ffff;
@@ -105,8 +112,8 @@
 
         .placement-text {
             position: absolute;
-            bottom: 20px;
-            font-size: 0.9rem;
+            bottom: 15px;
+            font-size: 0.8rem;
             color: #00ff88;
             text-align: center;
             opacity: 0.8;
@@ -176,13 +183,6 @@
             margin: 1rem 0;
             min-height: 2rem;
             text-shadow: 0 0 10px #00ff88;
-        }
-
-        .instruction {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            text-shadow: 0 0 8px #00ff88;
         }
 
         .loading-screen {
@@ -315,6 +315,27 @@
             border-top: none;
         }
 
+        .audio-controls {
+            display: none;
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: float 6s linear infinite;
+        }
+
         @keyframes glow {
             from { text-shadow: 0 0 20px #00ff88; }
             to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
@@ -338,24 +359,7 @@
 
         @keyframes scanning {
             0% { transform: translateY(0); }
-            100% { transform: translateY(460px); }
-        }
-
-        .particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #00ffff;
-            border-radius: 50%;
-            animation: float 6s linear infinite;
+            100% { transform: translateY(290px); }
         }
 
         @keyframes float {
@@ -374,25 +378,6 @@
                 transform: translateY(-10px) translateX(100px);
             }
         }
-
-        .audio-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-        }
-
-        .audio-controls button {
-            background: rgba(0, 255, 136, 0.8);
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 0 10px;
-        }
     </style>
 </head>
 <body>
@@ -405,15 +390,15 @@
         <div class="corner-decoration bottom-right"></div>
 
         <div class="main-interface">
-            <h1 class="title">BIOMETRIC ACCESS CONTROL</h1>
-            <p class="instruction">Place your hand on the scanner</p>
+            <h1 class="title">FINGERPRINT SCANNER</h1>
+            <p class="instruction">Place your thumb on the scanner</p>
             
             <div class="scanner-area" id="scannerArea">
                 <div class="scan-line"></div>
-                <div class="hand-placement">
-                    <div class="hand-icon">🖐️</div>
+                <div class="thumb-placement">
+                    <div class="thumb-icon">👍</div>
                 </div>
-                <div class="placement-text">Place your hand here</div>
+                <div class="placement-text">Thumb here</div>
                 <div class="progress-container">
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
@@ -421,13 +406,13 @@
                     <div class="progress-text" id="progressText">0%</div>
                 </div>
             </div>
-            
+
             <p class="status-text" id="statusText">System Ready</p>
         </div>
 
         <div class="loading-screen" id="loadingScreen">
             <div class="loading-content">
-                <div class="loading-title">BIOMETRIC VERIFICATION</div>
+                <div class="loading-title">FINGERPRINT VERIFICATION</div>
                 <div class="loading-progress">
                     <div class="loading-fill" id="loadingFill"></div>
                 </div>
@@ -436,10 +421,7 @@
             </div>
         </div>
 
-        <div class="audio-controls" id="audioControls">
-            <button onclick="playDemoVideo()">▶ Play Demo Video</button>
-            <button onclick="playCustomSound()">🔊 Play Alert Sound</button>
-        </div>
+        <div class="audio-controls" id="audioControls"></div>
     </div>
 
     <div class="video-container" id="videoContainer">
@@ -495,7 +477,7 @@
             isScanning = true;
             scanProgress = 0;
             scannerArea.classList.add('scanning');
-            statusText.textContent = 'Hand detected - Starting scan...';
+            statusText.textContent = 'Thumb detected - Starting scan...';
             
             // Play scan sound
             scanSound.currentTime = 0;
@@ -521,11 +503,11 @@
                 
                 // Update loading status messages
                 if (scanProgress <= 20) {
-                    loadingStatus.textContent = 'Initializing biometric sensors...';
+                    loadingStatus.textContent = 'Initializing fingerprint sensors...';
                 } else if (scanProgress <= 40) {
-                    loadingStatus.textContent = 'Scanning palm print patterns...';
+                    loadingStatus.textContent = 'Scanning fingerprint ridges...';
                 } else if (scanProgress <= 60) {
-                    loadingStatus.textContent = 'Analyzing fingerprint ridges...';
+                    loadingStatus.textContent = 'Analyzing unique patterns...';
                 } else if (scanProgress <= 80) {
                     loadingStatus.textContent = 'Cross-referencing database...';
                 } else if (scanProgress <= 95) {
@@ -615,7 +597,7 @@
         
         // Show audio controls after first interaction
         document.addEventListener('click', function() {
-            audioControls.style.display = 'block';
+            // Removed audio controls
         }, { once: true });
 
         // Keyboard shortcuts
@@ -635,9 +617,6 @@
             setTimeout(resetScanner, 1000);
         });
 
-        // Initialize particles
-        createParticles();
-
         // Add some ambient sound context
         function initAudioContext() {
             // This helps with audio autoplay policies
@@ -649,6 +628,9 @@
 
         // Initialize on first user interaction
         document.addEventListener('click', initAudioContext, { once: true });
+
+        // Initialize particles
+        createParticles();
     </script>
 </body>
 </html>
